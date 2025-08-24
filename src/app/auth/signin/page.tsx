@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { signIn, getSession } from "next-auth/react"
+import { useState, useEffect } from "react"
+import { signIn, getSession, getProviders } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,15 @@ export default function SignIn() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [providers, setProviders] = useState<any>(null)
+
+  useEffect(() => {
+    const getAuthProviders = async () => {
+      const providers = await getProviders()
+      setProviders(providers)
+    }
+    getAuthProviders()
+  }, [])
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -62,20 +71,22 @@ export default function SignIn() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <div className="grid grid-cols-1 gap-6">
-            <Button
-              variant="outline"
-              onClick={signInWithGoogle}
-              disabled={isGoogleLoading}
-            >
-              {isGoogleLoading ? (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Icons.google className="mr-2 h-4 w-4" />
-              )}
-              جوجل
-            </Button>
-          </div>
+          {providers?.google && (
+            <div className="grid grid-cols-1 gap-6">
+              <Button
+                variant="outline"
+                onClick={signInWithGoogle}
+                disabled={isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Icons.google className="mr-2 h-4 w-4" />
+                )}
+                جوجل
+              </Button>
+            </div>
+          )}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
